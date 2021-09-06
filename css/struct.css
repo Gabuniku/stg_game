@@ -1,3 +1,21 @@
-.content{
+.content {
     text-align: center;
+}
+
+.screen {
+    display: flex;
+    width: 750px;
+    height: 550px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#game_info {
+    width: 250px;
+    height: 550px;
+}
+
+#game_info p {
+    font-size: 20px;
+
 }

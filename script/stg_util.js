@@ -1,6 +1,7 @@
 /**
  * 便利な計算関数などをまとめたモジュール
  */
+import { ENEMIES, BULLETS } from "./game.js"
 
 export class Pos {
     /**
@@ -23,7 +24,7 @@ export function getNearPos(pos, pos_array) {
     /**
      * posに最も近いposをpos_arrayから見つける
      */
-    let close_pos;
+    let close_pos = null;
     let distance = 0;
     let most_min_distance = 0;
     for (var i = 0; i < pos_array.length; i++) {
@@ -38,7 +39,15 @@ export function getNearPos(pos, pos_array) {
             }
         }
     }
-    return close_val;
+    return close_pos;
+}
+
+export function getNearEnemy(pos) {
+    let poss = [];
+    for (var i = 0; i < ENEMIES.length; i++) {
+        poss.push(ENEMIES[i].pos);
+    }
+    return getNearPos(pos, poss);
 }
 
 export function getAngleToPos(pos1, pos2) {
@@ -59,9 +68,25 @@ export function getPosInRange(pos, pos_array, range) {
     for (var i = 0; pos_array.length; i++) {
         _pos = pos_array[i];
         distance = calcDistance(pos, _pos);
-        if(distance < range){
+        if (distance < range) {
             hit_poss.push(_pos);
         }
     }
     return hit_poss;
+}
+
+export function getHitBullet(pos, size, is_enemy) {
+    /**
+     * posとsizeに一致する弾を取得
+     * is_enemyで弾種分別 true -> 敵弾
+     */
+    let bullets = []
+    for (let index = 0; index < BULLETS.length; index++) {
+        const bullet = BULLETS[index];
+        const distance = calcDistance(pos,bullet.pos);
+        if(distance < size && bullet.is_enemy == is_enemy){
+            bullets.push(bullet);
+        }        
+    }
+    return bullets;
 }
