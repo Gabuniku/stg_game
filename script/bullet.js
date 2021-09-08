@@ -27,19 +27,35 @@ export class Bullet extends Entity {
     destroy() {
         this.dead_flag = true;
     }
+    render(ctx) {
+        let old_style = ctx.fillStyle;
+        if (this.is_enemy) {
+            ctx.fillStyle = "rgb(255,255, 0)";
+        }
+        super.render(ctx);
+        ctx.fillStyle = old_style;
+    }
     move() {
         switch (this.type) {
             case 0: // 向いてる方向に進む
-                this.pos.x += this.speed * this.rate_x;
-                this.pos.y += this.speed * this.rate_y;
+                this.go_forward();
                 break;
             case 1: // 最寄りの敵 
                 let pos = util.getNearEnemy(this.pos);
                 if (pos != null) {
-                    this.set_angle(util.getAngleToPos(this.pos, pos));
+                    let ang = util.getAngleToPos(this.pos, pos) + 90;
+                    let rotate = 0;
+                    if (this.angle + 90 > ang) {
+                        rotate = -8;
+                    } else if (this.angle + 90 < ang) {
+                        rotate = 8;
+                    }
+                    this.set_angle(this.angle + rotate);
                 }
-                this.pos.x += this.speed * this.rate_x;
-                this.pos.y += this.speed * this.rate_y;
+                this.go_forward();
+                break;
+            case 10:
+                this.go_forward();
                 break;
         }
     }

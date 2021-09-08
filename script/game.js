@@ -6,7 +6,7 @@
 
 import { Bullet } from "./bullet.js"
 import * as util from "./stg_util.js"
-import { STAGE_DATA } from "./stage_data.js"
+import { loadStage, STAGE_DATA } from "./stage_data.js"
 import { Enemy } from "./enemy.js"
 import { Entity } from "./entity.js"
 
@@ -91,10 +91,10 @@ function KeyDownEvent(e) {
     else if (e.key == "Shift") {
         pressed_shift = true;
     }
-    else if (e.key == "z") {
+    else if (e.key == "z" || e.key == "Z") {
         pressed_shot = true;
     }
-    else if (e.key == "x") {
+    else if (e.key == "x" || e.key == "X") {
         pressed_bomb = true;
     }
 }
@@ -116,10 +116,10 @@ function KeyUpEvent(e) {
     else if (e.key == "Shift") {
         pressed_shift = false;
     }
-    else if (e.key == "z") {
+    else if (e.key == "z" || e.key == "Z") {
         pressed_shot = false;
     }
-    else if (e.key == "x") {
+    else if (e.key == "x" || e.key == "X") {
         pressed_bomb = false;
     }
 }
@@ -212,9 +212,7 @@ function spawn(frame_cnt) {
             break;
         }
         e_data = stage_data[enemy_index];
-        console.log(e_data);
         e = new Enemy(...e_data.slice(1));
-        console.log(e);
         ENEMIES.push(e);
         enemy_index++;
         if (enemy_index == stage_data.length) {
@@ -267,6 +265,7 @@ function Init() {
     key_up = document.addEventListener("keyup", KeyUpEvent);
     score_show = document.getElementById("score_show");
     life_show = document.getElementById("life_show");
+    loadStage();
     INIT_FLAG = true;
     stage_num = enemy_index = next_enemy_frame = 0;
 }

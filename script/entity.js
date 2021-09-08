@@ -16,6 +16,7 @@ export class Entity {
         this.canvas_size = CANVAS_SIZE;
         this.frame_cnt = 0;
         this.dead_flag = false;
+        this.first_out = false;
         this.set_angle(angle);
     }
     set_angle(angle) {
@@ -29,13 +30,21 @@ export class Entity {
         // 画面外
         if (this.pos.x < 0 - this.size || this.pos.x > this.canvas_size[0] + this.size ||
             this.pos.y < 0 - this.size || this.pos.y > this.canvas_size[1] + this.size) {
-            this.destroy();
+            if (this.first_out) {
+                this.destroy();
+            }
+        } else {
+            this.first_out = true;
         }
     }
     destroy() {
         this.dead_flag = true;
     }
     move() {
+    }
+    go_forward() {
+        this.pos.x += this.speed * this.rate_x;
+        this.pos.y += this.speed * this.rate_y;
     }
     render(ctx) {
         ctx.beginPath()
