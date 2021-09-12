@@ -20,7 +20,7 @@ export class Entity {
         this.set_angle(angle);
     }
     set_angle(angle) {
-        this.angle = angle;
+        this.angle = angle % 360;
         this.rate_x = Math.cos(angle * Math.PI / 180); //横の変化量
         this.rate_y = Math.sin(angle * Math.PI / 180); //縦の変化量
     }

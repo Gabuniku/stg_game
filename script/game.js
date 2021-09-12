@@ -5,6 +5,7 @@
 */
 
 import { Bullet } from "./bullet.js"
+import { Boss } from "./boss.js"
 import * as util from "./stg_util.js"
 import { loadStage, STAGE_DATA } from "./stage_data.js"
 import { Enemy } from "./enemy.js"
@@ -21,6 +22,8 @@ class Player extends Entity {
         this.shot_cool_frame = 5; // frame単位
         this.frame_cnt = 0;
         this.last_shot_frame = 0;
+        this.power = 7;
+        this.shot_poss = [[0, -8, 0], [15, -5, 30], [-15, -5, -30], [30, 0, 45], [-30, 0, -45], [45, 5, 75], [-45, 5, -75]];
     }
     move() {
         let rate = 1.0;
@@ -57,10 +60,21 @@ class Player extends Entity {
                 let bullet;
                 if (pressed_shift) {
                     bullet = new Bullet(Object.create(this.pos), 10, -90, 30, 0, 10);
+                    BULLETS.push(bullet);
                 } else {
-                    bullet = new Bullet(Object.create(this.pos), 10, -90, 15, 1, 5); // 追尾
+                    for (let index = 0; index < this.power; index++) {
+                        if (index == this.shot_poss.length) {
+                            break;
+                        }
+                        let [x, y, r] = this.shot_poss[index];
+                        r -= 90;
+                        let b_pos = Object.create(this.pos);
+                        b_pos.x += x;
+                        b_pos.y += y;
+                        bullet = new Bullet(b_pos, 5, r, 10, 1, 2); // 追尾
+                        BULLETS.push(bullet);
+                    }
                 }
-                BULLETS.push(bullet);
                 this.last_shot_frame = this.frame_cnt;
             }
             //if (pressed_bomb) {
@@ -146,7 +160,9 @@ var pressed_bomb = false;
 var stage_num = 0;
 var enemy_index = 0;
 var next_enemy_frame = 0;
-var end_stage = false;
+var spawn_boss = false;
+var boss_count = 0;
+var finish = false;
 
 export const CANVAS_SIZE = [500, 550]; // 画面サイズ
 export const PLAYER = new Player(); // プレイヤー
@@ -155,7 +171,7 @@ export const PLAYER = new Player(); // プレイヤー
 export const ENEMIES = [] // 敵のリスト
 export const BULLETS = [] // 弾のリスト
 
-function addScore(value) {
+export function addScore(value) {
     score += value;
     score_show.innerText = ('000000' + score).slice(-6);
 }
@@ -189,6 +205,12 @@ function updateEnemy() {
             if (enemy.killed) {
                 addScore(100);
             }
+            if (enemy instanceof Boss) { // ボス撃破
+                boss_count--;
+                if (boss_count < 1) {
+                    nextStage();
+                }
+            }
             ENEMIES.splice(i, 1);
         }
     }
@@ -205,22 +227,24 @@ function renderEnemy(ctx) {
 }
 // 敵のスポーン
 function spawn(frame_cnt) {
-    let e_data, e;
-    let stage_data = STAGE_DATA[stage_num]
-    while (frame_cnt >= next_enemy_frame) {
-        if (end_stage) {
-            break;
+    let enemy = STAGE_DATA[stage_num].getEnemy(frame_cnt);
+    if (STAGE_DATA[stage_num].end && !spawn_boss && STAGE_DATA[stage_num].last_frame + 500 < frame_cnt) {
+        for (let index = 0; index < ENEMIES.length; index++) {
+            ENEMIES[index].destroy();
         }
-        e_data = stage_data[enemy_index];
-        e = new Enemy(...e_data.slice(1));
+        let boss = new Boss(stage_num);
+        boss_count++;
+        ENEMIES.push(boss);
+        spawn_boss = true;
+        return;
+    }
+    else if (enemy == null) {
+        return;
+    }
+    for (let index = 0; index < enemy.length; index++) {
+        const data = enemy[index];
+        let e = new Enemy(...data.slice(1));
         ENEMIES.push(e);
-        enemy_index++;
-        if (enemy_index == stage_data.length) {
-            end_stage = true;
-        } else {
-            enemy_index;
-            next_enemy_frame = stage_data[enemy_index][0];
-        }
     }
 }
 
@@ -242,6 +266,10 @@ function render() {
     renderBullet(CANVAS_CONTEXT);
     CANVAS_CONTEXT.fillStyle = "rgb(0, 255, 255)";
     PLAYER.render(CANVAS_CONTEXT);
+    CANVAS_CONTEXT.fillStyle = "rgb(0, 255, 255)";
+    CANVAS_CONTEXT.font = "48px メイリオ";
+    CANVAS_CONTEXT.textBaseline = "hanging";
+    CANVAS_CONTEXT.fillText(frame_cnt, 0, 100);
     CANVAS_CONTEXT.fillStyle = "rgb(0, 0, 0)";
 }
 
@@ -270,10 +298,22 @@ function Init() {
     stage_num = enemy_index = next_enemy_frame = 0;
 }
 
+function nextStage() {
+    stage_num++;
+    if(stage_num == STAGE_DATA.length){
+        finish = true;
+        return;
+    }
+    enemy_index = 0;
+    boss_count = 0;
+    frame_cnt = 0;
+    spawn_boss = false;
+}
+
 // ゲーム開始
 function Game() {
     if (INIT_FLAG) {
-        next_enemy_frame = STAGE_DATA[stage_num][0][0]
+        next_enemy_frame = STAGE_DATA[stage_num].getNextFrame();
         setInterval(MainLoop, 17); // メインループを設定 17ミリ秒 ≒ 60fps
     } else {
         console.log("初期化をしてください。")

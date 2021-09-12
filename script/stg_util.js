@@ -13,6 +13,10 @@ export class Pos {
     }
 }
 
+export function between(x, min, max) {
+    return x >= min && x <= max;
+  }
+
 export function calcDistance(pos1, pos2) {
     /**
      * 二点の距離を計算

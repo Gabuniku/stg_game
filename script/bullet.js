@@ -7,6 +7,7 @@ import * as util from "./stg_util.js"
  * 弾の種類
  * 0 ~ 9 味方弾
  * 10 ~ 敵弾
+ * 80 ~ boss用
  */
 export class Bullet extends Entity {
     constructor(pos, size, angle = 0, speed = 10, type = 0, damage = 10) {
@@ -15,6 +16,7 @@ export class Bullet extends Entity {
         this.width = this.hight = this.size = size;
         this.is_enemy = (type > 9);
         this.damage = damage;
+        this.original_angle = angle;
     }
     set_angle(angle) {
         this.angle = angle;
@@ -57,6 +59,26 @@ export class Bullet extends Entity {
             case 10:
                 this.go_forward();
                 break;
+            case 80:
+                this.go_forward();
+                break;
+            case 81://左巻き
+                this.set_angle(this.angle + 2);
+                this.go_forward();
+                break;
+            case 82://右巻き
+                this.set_angle(this.angle - 2);
+                this.go_forward();
+                break;
+            case 83: // sin波
+                this.set_angle(this.original_angle + (60 * Math.sin((this.frame_cnt * 4 -90 % 360) * Math.PI / 180)));
+                this.go_forward();
+                break;
+            case 84: // cos波
+                this.set_angle(this.original_angle + (60 * Math.cos((this.frame_cnt * 4 % 360) * Math.PI / 180)));
+                this.go_forward();
+                break;
+
         }
     }
 
