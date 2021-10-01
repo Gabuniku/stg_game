@@ -155,8 +155,10 @@ class FirstStage extends StageData {
     }
     build() {
         this.addFormation(100, Formation_Down_Right);
-        this.addFormation(400, Formation_Down_Left);
         this.addFormation(300, Formation_Top);
+        this.addFormation(400, Formation_Down_Left);
+        this.addFormation(600, Formation_Down_Right);
+        this.addFormation(600, Formation_Down_Left);
         super.build();
     }
 }
@@ -172,7 +174,7 @@ class BossTest extends StageData {
 
 
 export function loadStage() {
-    const First = new BossTest();
+    const First = new FirstStage();
     const Fist = new BossTest();
     First.build();
     Fist.build();

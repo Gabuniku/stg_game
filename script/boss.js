@@ -15,6 +15,7 @@ export class Boss extends Entity {
         this.size = 30;
         this.action_cnt = 0;
         this.last_shot = 0;
+        this.shot_angle = 0;
     }
     get_hits(not_damage = false) {
         let bullets = util.getHitBullet(this.pos, this.size, false);
@@ -37,6 +38,7 @@ export class Boss extends Entity {
 
     move() {
         this.action_cnt++;
+
         switch (this.stage_num) {
             case 0:
                 if (this.action_cnt < 100) {
@@ -52,11 +54,13 @@ export class Boss extends Entity {
                     let r = Math.random() * (360 - 0)
                     let bullet = new Bullet(Object.create(this.pos), 5, r, 5, 80, 10);
                     BULLETS.push(bullet);
-                } else if (util.between(this.action_cnt, 200, 250)) {
-                    let r = util.getAngleToPos(this.pos, PLAYER.pos);
-                    let bullet = new Bullet(Object.create(this.pos), 10, r, 5, 83, 10);
+                } else if (this.action_cnt == 221) {
+                    this.shot_angle = util.getAngleToPos(this.pos, PLAYER.pos);
+                }
+                else if (util.between(this.action_cnt, 221, 250)) {
+                    let bullet = new Bullet(Object.create(this.pos), 10, this.shot_angle, 5, 83, 10);
                     BULLETS.push(bullet);
-                    let bullet2 = new Bullet(Object.create(this.pos), 10, r, 5, 84, 10);
+                    let bullet2 = new Bullet(Object.create(this.pos), 10, this.shot_angle, 5, 84, 10);
                     BULLETS.push(bullet2);
                 }
                 if (this.action_cnt > 300) {
