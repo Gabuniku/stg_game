@@ -71,7 +71,7 @@ export class Bullet extends Entity {
                 this.go_forward();
                 break;
             case 83: // sin波
-                this.set_angle(this.original_angle + (60 * Math.sin((this.frame_cnt * 4 -90 % 360) * Math.PI / 180)));
+                this.set_angle(this.original_angle + (60 * Math.sin((this.frame_cnt * 4 - 90 % 360) * Math.PI / 180)));
                 this.go_forward();
                 break;
             case 84: // cos波

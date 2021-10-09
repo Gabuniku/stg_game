@@ -19,9 +19,12 @@ class Player extends Entity {
         this.hight = 10;
         this.life = 3;
         this.speed = 5;
+        this.original_size = 10;
         this.shot_cool_frame = 5; // frame単位
         this.frame_cnt = 0;
         this.last_shot_frame = 0;
+        this.dead_frame = 0;
+        this.is_play_dead_anime = false;
         this.power = 7;
         this.shot_poss = [[0, -8, 0], [15, -5, 30], [-15, -5, -30], [30, 0, 45], [-30, 0, -45], [45, 5, 75], [-45, 5, -75]];
     }
@@ -85,6 +88,28 @@ class Player extends Entity {
     update() {
         this.frame_cnt++;
         this.move()
+        let hit_bullet = util.getHitBullet(this.pos, this.size, true);
+        if (this.is_play_dead_anime) {
+            let dis = this.frame_cnt - this.dead_frame;
+            this.alpha -= 0.01;
+            this.size = this.original_size + (dis);
+            if (this.alpha<0.2) {
+                this.alpha = 1;
+                this.size = this.original_size;
+                this.is_play_dead_anime = false;
+            }
+        }
+        if (hit_bullet.length > 0) {
+            if (this.life == 0) {
+                this.dead_flag = true;
+            } else if (!this.is_play_dead_anime) {
+                damagePlayer();
+                this.dead_frame = this.frame_cnt;
+                this.is_play_dead_anime = true;
+
+            }
+            hit_bullet.forEach(bullet => bullet.destroy());
+        }
     }
 }
 
@@ -170,10 +195,15 @@ export const PLAYER = new Player(); // プレイヤー
 
 export const ENEMIES = [] // 敵のリスト
 export const BULLETS = [] // 弾のリスト
+const GAME_SPEED = 1000 / 60;
 
 export function addScore(value) {
     score += value;
     score_show.innerText = ('000000' + score).slice(-6);
+}
+export function damagePlayer(value) {
+    PLAYER.life--;
+    life_show.innerText = PLAYER.life;
 }
 
 function updateBullet() {
@@ -300,7 +330,7 @@ function Init() {
 
 function nextStage() {
     stage_num++;
-    if(stage_num == STAGE_DATA.length){
+    if (stage_num == STAGE_DATA.length) {
         finish = true;
         return;
     }
@@ -314,7 +344,7 @@ function nextStage() {
 function Game() {
     if (INIT_FLAG) {
         next_enemy_frame = STAGE_DATA[stage_num].getNextFrame();
-        setInterval(MainLoop, 17); // メインループを設定 17ミリ秒 ≒ 60fps
+        setInterval(MainLoop, GAME_SPEED); // メインループを設定 17ミリ秒 ≒ 60fps
     } else {
         console.log("初期化をしてください。")
     }

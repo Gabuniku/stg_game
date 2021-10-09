@@ -17,6 +17,7 @@ export class Entity {
         this.frame_cnt = 0;
         this.dead_flag = false;
         this.first_out = false;
+        this.alpha = 1;
         this.set_angle(angle);
     }
     set_angle(angle) {
@@ -47,8 +48,11 @@ export class Entity {
         this.pos.y += this.speed * this.rate_y;
     }
     render(ctx) {
+        ctx.globalAlpha = this.alpha;
         ctx.beginPath()
         ctx.arc(this.pos.x, this.pos.y, this.size, 0, Math.PI * 2, true);
         ctx.fill()
+        ctx.globalAlpha = 1;
+
     }
 }

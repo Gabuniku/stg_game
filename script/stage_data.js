@@ -162,9 +162,9 @@ class FirstStage extends StageData {
         super.build();
     }
 }
-class BossTest extends StageData {
+class SecondStage extends StageData {
     constructor() {
-        super(0, "ボステスト");
+        super(0, "前線崩壊");
     }
     build() {
         this.addFormation(2, Formation_Top);
@@ -175,11 +175,11 @@ class BossTest extends StageData {
 
 export function loadStage() {
     const First = new FirstStage();
-    const Fist = new BossTest();
+    const Second = new SecondStage();
     First.build();
-    Fist.build();
+    Second.build();
     STAGE_DATA.push(First);
-    STAGE_DATA.push(Fist);
+    STAGE_DATA.push(Second);
     console.log(STAGE_DATA)
 }
 
