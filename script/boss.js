@@ -10,8 +10,8 @@ export class Boss extends Entity {
     constructor(stage_num) {
         super(new util.Pos(250, 120), 0, 10);
         this.stage_num = stage_num;
-        this.hp = 5000;
-        this.max_hp = 5000;
+        this.hp = 1500 * stage_num;
+        this.max_hp = this.hp;
         this.size = 30;
         this.action_cnt = 0;
         this.last_shot = 0;
@@ -51,7 +51,7 @@ export class Boss extends Entity {
                         BULLETS.push(bullet2);
                     }
                 } else if (util.between(this.action_cnt, 120, 220)) {
-                    let r = Math.random() * (360 - 0)
+                    let r = Math.random() * (360 - 0);
                     let bullet = new Bullet(Object.create(this.pos), 5, r, 5, 80, 10);
                     BULLETS.push(bullet);
                 } else if (this.action_cnt == 221) {
@@ -68,6 +68,35 @@ export class Boss extends Entity {
                 }
                 break;
 
+            case 1:
+                if (this.action_cnt < 100) {
+
+                } else if (util.between(this.action_cnt,100, 110)) {
+                    let offset = [[10, 0], [5, 8.66], [-5, 8.66], [-10, 0], [-5, -8.66], [5, -8.66]];
+                    let r = Math.random() * 5;
+                    for (let i = 0; i < r; i++) { 
+                        let x = util.getRandomRange(50,450);
+                        let y = util.getRandomRange(50,100);
+                        let pos = new util.Pos(x,y);
+                        let angle =  util.getRandomRange(45,135);
+                        let speed = util.getRandomRange(1,4);
+                        let ox,oy;
+                        let center_bullet = new Bullet(pos,10,angle,speed,10,1);
+                        BULLETS.push(center_bullet);
+                        for(let o = 0; o<offset.length;o++){
+                            [ox,oy] = offset[o];
+                            let offPos = Object.create(pos);
+                            offPos.x += ox;
+                            offPos.y += oy;
+                            let around_bullet = new Bullet(offPos,5,angle,speed,10,1);
+                            BULLETS.push(around_bullet);
+                        }
+                    }
+                }
+                if (this.action_cnt > 300) {
+                    this.action_cnt = 0;
+                }
+                break;
             default:
                 break;
         }
