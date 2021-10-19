@@ -47,6 +47,7 @@ class StageData {
         this.enemy_data = this.enemy_data.sort(this.sortStageData);
         this.last_frame = this.enemy_data[this.enemy_data.length - 1][0];
     }
+
     addFormation(frame = 0, formation_data = []) {
         for (let index = 0; index < formation_data.length; index++) {
             let data = formation_data[index];
@@ -168,6 +169,11 @@ class SecondStage extends StageData {
     }
     build() {
         this.addFormation(2, Formation_Top);
+        this.addFormation(400, Formation_Down_Left);
+        this.addFormation(400, Formation_Down_Right);
+        this.addFormation(500, Formation_Top);
+        this.addFormation(700, Formation_Down_Left);
+        this.addFormation(700, Formation_Down_Right);
         super.build();
     }
 }

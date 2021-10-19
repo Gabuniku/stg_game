@@ -284,6 +284,9 @@ function update() {
     updateEnemy();
     updateBullet();
     PLAYER.update();
+    if(PLAYER.dead_flag){
+        isFinite = true;
+    }
 }
 
 // 描画
