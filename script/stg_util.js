@@ -13,6 +13,42 @@ export class Pos {
         this.x = x;
         this.y = y;
     }
+
+    /**
+     * setter
+     * @param {number} x 
+     * @param {number} y 
+     */
+    setPos(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    /**
+     * getter
+     * @returns {number[]}
+     */
+    getPos() {
+        return [this.x, this.y];
+    }
+
+    /**
+     * move relative
+     * @param {number} x 
+     * @param {number} y 
+     */
+    move(x, y) {
+        this.x += x;
+        this.y += y;
+    }
+
+    /**
+     * copy
+     * @returns {Pos}
+     */
+    copy() {
+        return new Pos(this.x, this.y);
+    }
 }
 
 export class Rect {
@@ -30,7 +66,101 @@ export class Rect {
         this.width = width;
         this.height = height;
     }
+
+    /**
+     * 
+     * @param {number} x 
+     * @param {number} y 
+     */
+    setPos(x, y) {
+        this.pos.setPos(x, y);
+    }
+
+    /**
+     * 
+     * @param {number} width 
+     * @param {number} height 
+     */
+    setSize(width, height) {
+        this.width = width;
+        this.height = height;
+    }
+    getSize() {
+        return [this.width, this.height];
+    }
+    getHalfSize() {
+        return [this.width / 2, this.height / 2];
+    }
+    /**
+     * 
+     * @returns {number[2]}
+     */
+    getCenter() {
+        return [this.width / 2, this.height / 2];
+    }
+    /**
+     * 
+     * @returns {Pos}
+     */
+    getCenterPos() {
+        return new Pos(...this.getCenter());
+    }
+
+    /**
+     * copy
+     * @returns {Rect}
+     */
+    copy() {
+        return new Rect(this.pos.copy(), this.width, this.height);
+    }
 }
+
+export class Clock {
+    /**
+     * クロッククラス
+     * FPSなどを管理
+     * @param {number} fps
+     */
+    constructor(fps = 60) {
+        this.fps = fps;
+        this.wait_time = 1000 / fps;
+        this.last_call_time = performance.now();
+        this.last_tick_time = 1;
+    }
+
+    /**
+     * 
+     * @returns {number} - FPSを保つのに待つ時間(ms) ※マイナスの時はフレームドロップ
+     */
+    tick() {
+        let t = performance.now()
+        this.last_tick_time = t - this.last_call_time;
+        this.last_call_time = t;
+        return this.last_tick_time;
+    }
+
+    /**
+     * 直近のFPS値を取得
+     * @returns {number} - FPS
+     */
+    getFps() {
+        return 1000 / this.last_tick_time;
+    }
+}
+
+/**
+ * 画像を描画
+ * @param {Image} image 
+ * @param {(Pos|Rect)} pos 
+ * @param {CanvasRenderingContext2D} ctx 
+ */
+export function drawImage(image, pos, ctx) {
+    if (pos instanceof Rect) {
+        pos = pos.pos;
+    }
+    ctx.drawImage(image, ...pos.getPos(),100,100);
+}
+
 /**
  * minとmaxの間にxがあるかどうか返す
  * @param {number} x 
@@ -80,7 +210,7 @@ export function getNearPos(pos, pos_array) {
 /**
  * posから最も近い敵の位置を返す getNearPosのラッパー
  * @param {Pos} pos 
- * @returns Pos or null
+ * @returns {(Pos|null)}
  */
 export function getNearEnemy(pos) {
     let poss = [];
@@ -106,7 +236,7 @@ export function getAngleToPos(pos1, pos2) {
  * @param {Pos} pos 
  * @param {Array<Pos>} pos_array 
  * @param {number} range 
- * @returns Pos
+ * @returns {Pos[]}
  */
 export function getPosInRange(pos, pos_array, range) {
     let hit_poss = [];
@@ -128,7 +258,7 @@ export function getPosInRange(pos, pos_array, range) {
  * @param {Pos} pos 
  * @param {number} size 
  * @param {Boolean} is_enemy 
- * @returns Array<Bullet>
+ * @returns {Array<Bullet>}
  */
 export function getHitBullet(pos, size, is_enemy) {
     let bullets = []
@@ -141,12 +271,34 @@ export function getHitBullet(pos, size, is_enemy) {
     }
     return bullets;
 }
+/**
+ * Rectでの当たり判定計算
+ * @param {Rect} rect1 
+ * @param {Rect} rect2 
+ * @returns {Boolean} - 判定結果
+ */
+export function getGetCollisionRect(rect1, rect2) {
+    let distance_x, distance_y, r1_x, r1_y, r1_hw, r1_hh, r2_x, r2_y, r2_hw, r2_hh;
+
+    [r1_x, r1_y] = rect1.getCenter();
+    [r2_x, r2_y] = rect2.getCenter();
+    distance_x = Math.abs(r1_x - r2_x);
+    distance_y = Math.abs(r1_y - r2_y);
+    [r1_hw, r1_hh] = rect1.getHalfSize();
+    [r2_hw, r2_hh] = rect2.getHalfSize();
+    if ((r1_hw + r2_hw) >= distance_x || (r1_hh + r2_hh) >= distance_y) {
+        return true;
+    } else {
+        return false;
+    }
+
+}
 
 /**
  * min以上max以下の乱数を返す
  * @param {number} min 
  * @param {number} max 
- * @returns number
+ * @returns {number}
  */
 export function getRandomRange(min, max) {
     return Math.random() * (max - min) + min;
