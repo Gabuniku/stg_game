@@ -76,6 +76,10 @@ export class Rect {
         this.pos.setPos(x, y);
     }
 
+    getPos() {
+        return this.pos.copy();
+    }
+
     /**
      * 
      * @param {number} width 
@@ -93,10 +97,20 @@ export class Rect {
     }
     /**
      * 
+     * @param {Pos} pos 
+     */
+    setCenter(pos) {
+        let [px, py] = pos.getPos();
+        let [hx, hy] = this.getHalfSize();
+        this.setPos(px - hx, py - hy);
+    }
+
+    /**
+     * 
      * @returns {number[2]}
      */
     getCenter() {
-        return [this.width / 2, this.height / 2];
+        return [(this.width / 2) + this.pos.x, (this.height / 2) + this.pos.y];
     }
     /**
      * 
@@ -151,14 +165,20 @@ export class Clock {
 /**
  * 画像を描画
  * @param {Image} image 
- * @param {(Pos|Rect)} pos 
+ * @param {(Pos} pos 
  * @param {CanvasRenderingContext2D} ctx 
  */
 export function drawImage(image, pos, ctx) {
-    if (pos instanceof Rect) {
-        pos = pos.pos;
-    }
-    ctx.drawImage(image, ...pos.getPos(),100,100);
+    ctx.drawImage(image, ...pos.getPos(), 100, 100);
+}
+/**
+ * 画像を描画 use Rect
+ * @param {Image} image 
+ * @param {(Rect} rect 
+ * @param {CanvasRenderingContext2D} ctx 
+ */
+export function drawImageRect(image, rect, ctx) {
+    ctx.drawImage(image, ...rect.pos.getPos(), ...rect.getSize());
 }
 
 /**

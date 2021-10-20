@@ -26,8 +26,52 @@ class Player extends Entity {
         this.dead_frame = 0;
         this.is_play_dead_anime = false;
         this.power = 7;
+        this.role = 0;
         this.shot_poss = [[0, -8, 0], [15, -5, 30], [-15, -5, -30], [30, 0, 45], [-30, 0, -45], [45, 5, 75], [-45, 5, -75]];
+        this.image_map = new Map();
+        this.role_list = [-90, -75, -60, -45, -15, 0, 15, 45, 60, 75, 90];
+        this.role_speed = 5
+        this.hit_box.setSize(this.size, this.size);
+        this.show_box.setSize(70, 70);
+        this.role_list.forEach((role) => {
+            let img = new Image();
+            img.src = "../data/pic/" + role + ".png";
+            this.image_map[role] = img;
+        })
     }
+
+    setRole(role) {
+        if (Math.abs(this.role + role) <= 100) {
+            this.role += role;
+        }
+    }
+
+    getRoleImage(role) {
+        if (role <= -90) {
+            return this.image_map[-90];
+        } else if (role <= -75) {
+            return this.image_map[-75];
+        } else if (role <= -60) {
+            return this.image_map[-60];
+        } else if (role <= -45) {
+            return this.image_map[-45];
+        } else if (role <= -15) {
+            return this.image_map[-15];
+        } else if (util.between(role, -15, 15)) {
+            return this.image_map[0];
+        } else if (role <= 45) {
+            return this.image_map[15];
+        } else if (role <= 60) {
+            return this.image_map[45];
+        } else if (role <= 75) {
+            return this.image_map[60];
+        } else if (role <= 90) {
+            return this.image_map[75];
+        } else {
+            return this.image_map[90];
+        }
+    }
+
     move() {
         let rate = 1.0;
         if (pressed_left != pressed_right && pressed_up != pressed_down) {
@@ -49,11 +93,13 @@ class Player extends Entity {
             }
         }
         if (pressed_right) {
+            this.setRole(this.role_speed);
             if (this.pos.x + move < CANVAS_SIZE[0] - this.width) {
                 this.pos.x += move;
             }
         }
         if (pressed_left) {
+            this.setRole(-this.role_speed);
             if (this.pos.x - move > 0 + this.size) {
                 this.pos.x -= move;
             }
@@ -62,7 +108,7 @@ class Player extends Entity {
             if (this.frame_cnt - this.last_shot_frame > this.shot_cool_frame) {
                 let bullet;
                 if (pressed_shift) {
-                    bullet = new Bullet(Object.create(this.pos), 10, -90, 30, 0, 10);
+                    bullet = new Bullet(this.pos.copy(), 10, -90, 30, 0, 10);
                     BULLETS.push(bullet);
                 } else {
                     for (let index = 0; index < this.power; index++) {
@@ -71,7 +117,7 @@ class Player extends Entity {
                         }
                         let [x, y, r] = this.shot_poss[index];
                         r -= 90;
-                        let b_pos = Object.create(this.pos);
+                        let b_pos = this.pos.copy();
                         b_pos.x += x;
                         b_pos.y += y;
                         bullet = new Bullet(b_pos, 5, r, 10, 1, 2); // 追尾
@@ -83,17 +129,27 @@ class Player extends Entity {
             //if (pressed_bomb) {
 
             //}
+
+        } if (!pressed_left && !pressed_right) {
+            if (this.role < 0) {
+                this.setRole(this.role_speed)
+            } else if (this.role > 0) {
+                this.setRole(-5);
+            }
         }
     }
     update() {
         this.frame_cnt++;
         this.move()
+        this.show_box.setCenter(this.pos);
+        this.hit_box.setCenter(this.pos);
+        this.image = this.getRoleImage(this.role);
         let hit_bullet = util.getHitBullet(this.pos, this.size, true);
         if (this.is_play_dead_anime) {
             let dis = this.frame_cnt - this.dead_frame;
             this.alpha -= 0.01;
             this.size = this.original_size + (dis);
-            if (this.alpha<0.2) {
+            if (this.alpha < 0.2) {
                 this.alpha = 1;
                 this.size = this.original_size;
                 this.is_play_dead_anime = false;
@@ -109,6 +165,16 @@ class Player extends Entity {
 
             }
             hit_bullet.forEach(bullet => bullet.destroy());
+        }
+    }
+    render(ctx) {
+        super.render(ctx);
+        if (pressed_shift) {
+            CANVAS_CONTEXT.fillStyle = "rgb(0, 255, 255)";
+            ctx.beginPath()
+            ctx.arc(this.pos.x, this.pos.y, this.size, 0, Math.PI * 2, true);
+            ctx.fill()
+            CANVAS_CONTEXT.fillStyle = "rgb(0, 0, 0)";
         }
     }
 }
@@ -188,9 +254,12 @@ var next_enemy_frame = 0;
 var spawn_boss = false;
 var boss_count = 0;
 var finish = false;
+var clock_wait_t = 0;
+var DEBUG_FLAG = false;
 
 export const CANVAS_SIZE = [500, 550]; // 画面サイズ
 export const PLAYER = new Player(); // プレイヤー
+export const CLOCK = new util.Clock();
 
 
 export const ENEMIES = [] // 敵のリスト
@@ -284,7 +353,7 @@ function update() {
     updateEnemy();
     updateBullet();
     PLAYER.update();
-    if(PLAYER.dead_flag){
+    if (PLAYER.dead_flag) {
         isFinite = true;
     }
 }
@@ -295,30 +364,36 @@ function render() {
     CANVAS_CONTEXT.fillStyle = "rgb(0, 0, 0)";
     CANVAS_CONTEXT.fillRect(0, 0, CANVAS_SIZE[0], CANVAS_SIZE[1]);
     CANVAS_CONTEXT.fillStyle = "rgb(0, 0, 0)";
+    PLAYER.render(CANVAS_CONTEXT);
     renderEnemy(CANVAS_CONTEXT);
     renderBullet(CANVAS_CONTEXT);
-    CANVAS_CONTEXT.fillStyle = "rgb(0, 255, 255)";
-    PLAYER.render(CANVAS_CONTEXT);
-    CANVAS_CONTEXT.fillStyle = "rgb(0, 255, 255)";
-    CANVAS_CONTEXT.font = "48px メイリオ";
-    CANVAS_CONTEXT.textBaseline = "hanging";
-    CANVAS_CONTEXT.fillText(frame_cnt, 0, 100);
-    CANVAS_CONTEXT.fillStyle = "rgb(0, 0, 0)";
+    if (DEBUG_FLAG) {
+        CANVAS_CONTEXT.fillStyle = "rgb(0, 255, 255)";
+        CANVAS_CONTEXT.font = "48px メイリオ";
+        CANVAS_CONTEXT.textBaseline = "hanging";
+        CANVAS_CONTEXT.fillText(frame_cnt, 0, 100);
+        CANVAS_CONTEXT.fillText(PLAYER.role, 0, 200);
+        CANVAS_CONTEXT.fillText(Math.floor(CLOCK.getFps()) + "fps", 0, 150);
+        CANVAS_CONTEXT.fillStyle = "rgb(0, 0, 0)";
+    }
 }
 
 // メインループ
 function MainLoop() {
+    CLOCK.tick();
     frame_cnt++;
     update();
     render();
+    clock_wait_t = GAME_SPEED - CLOCK.tick();
+    setTimeout(MainLoop, clock_wait_t);
 }
 
 // 初期化
 function Init() {
     let win_w = document.documentElement.clientWidth;
     let win_h = document.documentElement.clientHeight;
-    if (win_w < 800 || win_h < 700) {
-        alert("画面サイズを800px × 700px にしてください。 ※これより小さいとプレイに支障をきたす恐れがあります。")
+    if (win_w < 850 || win_h < 650) {
+        alert("画面サイズを850px × 650px にしてください。 ※これより小さいとプレイに支障をきたす恐れがあります。")
     }
     CANVAS = document.getElementById("canvas");
     CANVAS_CONTEXT = CANVAS.getContext("2d");
@@ -347,7 +422,7 @@ function nextStage() {
 function Game() {
     if (INIT_FLAG) {
         next_enemy_frame = STAGE_DATA[stage_num].getNextFrame();
-        setInterval(MainLoop, GAME_SPEED); // メインループを設定 17ミリ秒 ≒ 60fps
+        setTimeout(MainLoop, GAME_SPEED); // メインループを設定 17ミリ秒 ≒ 60fps
     } else {
         console.log("初期化をしてください。")
     }
