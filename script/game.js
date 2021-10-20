@@ -29,8 +29,8 @@ class Player extends Entity {
         this.role = 0;
         this.shot_poss = [[0, -8, 0], [15, -5, 30], [-15, -5, -30], [30, 0, 45], [-30, 0, -45], [45, 5, 75], [-45, 5, -75]];
         this.image_map = new Map();
-        this.role_list = [-90, -75, -60, -45, -15, 0, 15, 45, 60, 75, 90];
-        this.role_speed = 5
+        this.role_list = [-75, -60, -45, -15, 0, 15, 45, 60, 75];
+        this.role_speed = 3
         this.hit_box.setSize(this.size, this.size);
         this.show_box.setSize(70, 70);
         this.role_list.forEach((role) => {
@@ -47,9 +47,7 @@ class Player extends Entity {
     }
 
     getRoleImage(role) {
-        if (role <= -90) {
-            return this.image_map[-90];
-        } else if (role <= -75) {
+        if (role <= -75) {
             return this.image_map[-75];
         } else if (role <= -60) {
             return this.image_map[-60];
@@ -65,10 +63,8 @@ class Player extends Entity {
             return this.image_map[45];
         } else if (role <= 75) {
             return this.image_map[60];
-        } else if (role <= 90) {
-            return this.image_map[75];
         } else {
-            return this.image_map[90];
+            return this.image_map[75];
         }
     }
 
@@ -134,7 +130,7 @@ class Player extends Entity {
             if (this.role < 0) {
                 this.setRole(this.role_speed)
             } else if (this.role > 0) {
-                this.setRole(-5);
+                this.setRole(-this.role_speed);
             }
         }
     }
@@ -229,6 +225,22 @@ function KeyUpEvent(e) {
     }
 }
 
+class Star extends Entity {
+    /**
+     * 
+     * @param {util.Pos} pos 
+     * @param {number} size 
+     */
+    constructor(pos, size) {
+        super(pos, 90);
+        this.size = size;
+        this.speed = size;
+    }
+    move() {
+        this.go_forward();
+    }
+}
+
 var CANVAS;
 var CANVAS_CONTEXT;
 var key_down;
@@ -262,8 +274,9 @@ export const PLAYER = new Player(); // プレイヤー
 export const CLOCK = new util.Clock();
 
 
-export const ENEMIES = [] // 敵のリスト
-export const BULLETS = [] // 弾のリスト
+export const ENEMIES = [];// 敵のリスト
+export const BULLETS = []; // 弾のリスト
+const STARS = [];
 const GAME_SPEED = 1000 / 60;
 
 export function addScore(value) {
@@ -324,6 +337,19 @@ function renderEnemy(ctx) {
     }
     ctx.fillStyle = old_style;
 }
+
+function updateStars() {
+    for (let index = 0; index < STARS.length; index++) {
+        STARS[index].update();
+    }
+}
+
+function renderStars(ctx) {
+    let old_style = ctx.fillStyle;
+    ctx.fillStyle = "rgb(255, 255, 255)";
+    for (var i = 0; i < STARS.length; i++) { STARS[i].render(ctx); }
+    ctx.fillStyle = old_style;
+}
 // 敵のスポーン
 function spawn(frame_cnt) {
     let enemy = STAGE_DATA[stage_num].getEnemy(frame_cnt);
@@ -346,10 +372,21 @@ function spawn(frame_cnt) {
         ENEMIES.push(e);
     }
 }
+function spawnStar() {
+    let x, size;
+    x = util.getRandomRange(0, 550);
+    size = util.getRandomRange(1, 5);
+    let star = new Star(new util.Pos(x, -10), size);
+    STARS.push(star);
+}
 
 // 更新
 function update() {
     spawn(frame_cnt);
+    if(frame_cnt % 5 == 0){
+        spawnStar();
+    }
+    updateStars();
     updateEnemy();
     updateBullet();
     PLAYER.update();
@@ -364,6 +401,7 @@ function render() {
     CANVAS_CONTEXT.fillStyle = "rgb(0, 0, 0)";
     CANVAS_CONTEXT.fillRect(0, 0, CANVAS_SIZE[0], CANVAS_SIZE[1]);
     CANVAS_CONTEXT.fillStyle = "rgb(0, 0, 0)";
+    renderStars(CANVAS_CONTEXT);
     PLAYER.render(CANVAS_CONTEXT);
     renderEnemy(CANVAS_CONTEXT);
     renderBullet(CANVAS_CONTEXT);
