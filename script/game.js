@@ -35,7 +35,7 @@ class Player extends Entity {
         this.show_box.setSize(70, 70);
         this.role_list.forEach((role) => {
             let img = new Image();
-            img.src = "../data/pic/" + role + ".png";
+            img.src = "./script/img/" + role + ".png";
             this.image_map[role] = img;
         })
     }
