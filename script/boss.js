@@ -45,22 +45,22 @@ export class Boss extends Entity {
                     // 8方向
 
                     for (let r = 0; r <= 360; r += 30) {
-                        let bullet = new Bullet(Object.create(this.pos), 5, r, 10, 81, 10);
+                        let bullet = new Bullet(this.pos.copy(), 5, r, 10, 81, 10);
                         BULLETS.push(bullet);
-                        let bullet2 = new Bullet(Object.create(this.pos), 5, r, 10, 82, 10);
+                        let bullet2 = new Bullet(this.pos.copy(), 5, r, 10, 82, 10);
                         BULLETS.push(bullet2);
                     }
                 } else if (util.between(this.action_cnt, 120, 220)) {
                     let r = Math.random() * (360 - 0);
-                    let bullet = new Bullet(Object.create(this.pos), 5, r, 5, 80, 10);
+                    let bullet = new Bullet(this.pos.copy(), 5, r, 5, 80, 10);
                     BULLETS.push(bullet);
                 } else if (this.action_cnt == 221) {
                     this.shot_angle = util.getAngleToPos(this.pos, PLAYER.pos);
                 }
                 else if (util.between(this.action_cnt, 221, 250)) {
-                    let bullet = new Bullet(Object.create(this.pos), 10, this.shot_angle, 5, 83, 10);
+                    let bullet = new Bullet(this.pos.copy(), 10, this.shot_angle, 5, 83, 10);
                     BULLETS.push(bullet);
-                    let bullet2 = new Bullet(Object.create(this.pos), 10, this.shot_angle, 5, 84, 10);
+                    let bullet2 = new Bullet(this.pos.copy(), 10, this.shot_angle, 5, 84, 10);
                     BULLETS.push(bullet2);
                 }
                 if (this.action_cnt > 300) {
@@ -71,24 +71,24 @@ export class Boss extends Entity {
             case 1:
                 if (this.action_cnt < 100) {
 
-                } else if (util.between(this.action_cnt,100, 110)) {
+                } else if (util.between(this.action_cnt, 100, 110)) {
                     let offset = [[10, 0], [5, 8.66], [-5, 8.66], [-10, 0], [-5, -8.66], [5, -8.66]];
                     let r = Math.random() * 5;
-                    for (let i = 0; i < r; i++) { 
-                        let x = util.getRandomRange(50,450);
-                        let y = util.getRandomRange(50,100);
-                        let pos = new util.Pos(x,y);
-                        let angle =  util.getRandomRange(45,135);
-                        let speed = util.getRandomRange(1,4);
-                        let ox,oy;
-                        let center_bullet = new Bullet(pos,10,angle,speed,10,1);
+                    for (let i = 0; i < r; i++) {
+                        let x = util.getRandomRange(50, 450);
+                        let y = util.getRandomRange(50, 100);
+                        let pos = new util.Pos(x, y);
+                        let angle = util.getRandomRange(45, 135);
+                        let speed = util.getRandomRange(1, 4);
+                        let ox, oy;
+                        let center_bullet = new Bullet(pos, 10, angle, speed, 10, 1);
                         BULLETS.push(center_bullet);
-                        for(let o = 0; o<offset.length;o++){
-                            [ox,oy] = offset[o];
+                        for (let o = 0; o < offset.length; o++) {
+                            [ox, oy] = offset[o];
                             let offPos = Object.create(pos);
                             offPos.x += ox;
                             offPos.y += oy;
-                            let around_bullet = new Bullet(offPos,5,angle,speed,10,1);
+                            let around_bullet = new Bullet(offPos, 5, angle, speed, 10, 1);
                             BULLETS.push(around_bullet);
                         }
                     }

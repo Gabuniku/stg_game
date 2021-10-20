@@ -36,21 +36,21 @@ export class Enemy extends Entity {
         switch (this.gun_type) {
             case 0: // 一発撃つ 自機弾
                 if (this.frame_cnt - this.last_shot_frame > this.shot_interval) {
-                    let bullet = new Bullet(Object.create(this.pos), 10, util.getAngleToPos(this.pos, PLAYER.pos), 5, 10, 10);
+                    let bullet = new Bullet(this.pos.copy(), 10, util.getAngleToPos(this.pos, PLAYER.pos), 5, 10, 10);
                     BULLETS.push(bullet);
                     this.last_shot_frame = this.frame_cnt;
                 }
                 break;
             case 1: // 一発撃つ 外し弾 (+5°)
                 if (this.frame_cnt - this.last_shot_frame > this.shot_interval) {
-                    let bullet = new Bullet(Object.create(this.pos), 10, util.getAngleToPos(this.pos, PLAYER.pos) + 5, 5, 10, 10);
+                    let bullet = new Bullet(this.pos.copy(), 10, util.getAngleToPos(this.pos, PLAYER.pos) + 5, 5, 10, 10);
                     BULLETS.push(bullet);
                     this.last_shot_frame = this.frame_cnt;
                 }
                 break;
             case 2: // 一発撃つ 外し弾 (-5°)
                 if (this.frame_cnt - this.last_shot_frame > this.shot_interval) {
-                    let bullet = new Bullet(Object.create(this.pos), 10, util.getAngleToPos(this.pos, PLAYER.pos) - 5, 5, 10, 10);
+                    let bullet = new Bullet(this.pos.copy(), 10, util.getAngleToPos(this.pos, PLAYER.pos) - 5, 5, 10, 10);
                     BULLETS.push(bullet);
                     this.last_shot_frame = this.frame_cnt;
                 }
@@ -58,7 +58,7 @@ export class Enemy extends Entity {
             case 3: // 8方向
                 if (this.frame_cnt - this.last_shot_frame > this.shot_interval) {
                     for (let r = 0; r < 360; r += 45) {
-                        let bullet = new Bullet(Object.create(this.pos), 10, r, 5, 10, 10);
+                        let bullet = new Bullet(this.pos.copy(), 10, r, 5, 10, 10);
                         BULLETS.push(bullet);
                     }
                     this.last_shot_frame = this.frame_cnt;
