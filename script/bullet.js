@@ -10,6 +10,15 @@ import * as util from "./stg_util.js"
  * 80 ~ boss用
  */
 export class Bullet extends Entity {
+    /**
+     * 
+     * @param {util.Pos} pos 
+     * @param {number} size 
+     * @param {number} angle 
+     * @param {number} speed 
+     * @param {number} type 
+     * @param {number} damage 
+     */
     constructor(pos, size, angle = 0, speed = 10, type = 0, damage = 10) {
         super(pos, angle, speed);
         this.type = type;
