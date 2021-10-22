@@ -116,7 +116,7 @@ class Player extends Entity {
                         let b_pos = this.pos.copy();
                         b_pos.x += x;
                         b_pos.y += y;
-                        bullet = new Bullet(b_pos, 5, r, 10, 1, 2); // 追尾
+                        bullet = new Bullet(b_pos, 5, r, 6, 1, 2); // 追尾
                         BULLETS.push(bullet);
                     }
                 }
@@ -235,9 +235,13 @@ class Star extends Entity {
         super(pos, 90);
         this.size = size;
         this.speed = size;
+        this.born_frame = frame_cnt;
     }
     move() {
         this.go_forward();
+        if(frame_cnt > this.born_frame + 500){
+            this.destroy();
+        }
     }
 }
 
@@ -267,7 +271,7 @@ var spawn_boss = false;
 var boss_count = 0;
 var finish = false;
 var clock_wait_t = 0;
-var DEBUG_FLAG = false;
+// var DEBUG_FLAG = false;
 
 export const CANVAS_SIZE = [500, 550]; // 画面サイズ
 export const PLAYER = new Player(); // プレイヤー
@@ -340,7 +344,11 @@ function renderEnemy(ctx) {
 
 function updateStars() {
     for (let index = 0; index < STARS.length; index++) {
-        STARS[index].update();
+        let star =STARS[index];
+        star.update();
+        if(star.dead_flag){
+            STARS.splice(index,1);
+        }
     }
 }
 
@@ -366,15 +374,15 @@ function spawn(frame_cnt) {
     else if (enemy == null) {
         return;
     }
-    for (let index = 0; index < enemy.length; index++) {
         const data = enemy[index];
         let e = new Enemy(...data.slice(1));
         ENEMIES.push(e);
     }
 }
+
 function spawnStar() {
     let x, size;
-    x = util.getRandomRange(0, 550);
+    x = util.getRandomRange(5, 545);
     size = util.getRandomRange(1, 5);
     let star = new Star(new util.Pos(x, -10), size);
     STARS.push(star);
@@ -383,7 +391,7 @@ function spawnStar() {
 // 更新
 function update() {
     spawn(frame_cnt);
-    if(frame_cnt % 5 == 0){
+    if (frame_cnt % 5 == 0) {
         spawnStar();
     }
     updateStars();
@@ -410,8 +418,13 @@ function render() {
         CANVAS_CONTEXT.font = "48px メイリオ";
         CANVAS_CONTEXT.textBaseline = "hanging";
         CANVAS_CONTEXT.fillText(frame_cnt, 0, 100);
-        CANVAS_CONTEXT.fillText(PLAYER.role, 0, 200);
         CANVAS_CONTEXT.fillText(Math.floor(CLOCK.getFps()) + "fps", 0, 150);
+        CANVAS_CONTEXT.fillText(PLAYER.role, 0, 200);
+        CANVAS_CONTEXT.fillText(STARS.length + ENEMIES.length + BULLETS.length, 0, 250);
+        CANVAS_CONTEXT.font = "20px メイリオ";
+        CANVAS_CONTEXT.fillText("star  :"+STARS.length, 0, 300);
+        CANVAS_CONTEXT.fillText("enemy :"+ENEMIES.length, 0, 320);
+        CANVAS_CONTEXT.fillText("bullet:"+BULLETS.length, 0, 340);
         CANVAS_CONTEXT.fillStyle = "rgb(0, 0, 0)";
     }
 }

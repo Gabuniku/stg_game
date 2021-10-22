@@ -53,16 +53,19 @@ export class Bullet extends Entity {
                 break;
             case 1: // 最寄りの敵 
                 let pos = util.getNearEnemy(this.pos);
+
+                let ang = 0;
                 if (pos != null) {
-                    let ang = util.getAngleToPos(this.pos, pos) + 90;
-                    let rotate = 0;
-                    if (this.angle + 90 > ang) {
-                        rotate = -8;
-                    } else if (this.angle + 90 < ang) {
-                        rotate = 8;
-                    }
-                    this.set_angle(this.angle + rotate);
+                    ang = util.getAngleToPos(this.pos, pos) + 90;
                 }
+                let rotate = 0;
+                if (this.angle + 90 > ang) {
+                    rotate = -5;
+                } else if (this.angle + 90 < ang) {
+                    rotate = 5;
+                }
+                this.set_angle(this.angle + rotate);
+
                 this.go_forward();
                 break;
             case 10:
