@@ -239,7 +239,7 @@ class Star extends Entity {
     }
     move() {
         this.go_forward();
-        if(frame_cnt > this.born_frame + 500){
+        if (frame_cnt > this.born_frame + 500) {
             this.destroy();
         }
     }
@@ -344,10 +344,10 @@ function renderEnemy(ctx) {
 
 function updateStars() {
     for (let index = 0; index < STARS.length; index++) {
-        let star =STARS[index];
+        let star = STARS[index];
         star.update();
-        if(star.dead_flag){
-            STARS.splice(index,1);
+        if (star.dead_flag) {
+            STARS.splice(index, 1);
         }
     }
 }
@@ -371,14 +371,14 @@ function spawn(frame_cnt) {
         spawn_boss = true;
         return;
     }
-    else if (enemy == null) {
+    else if (enemy == null || enemy.length == 0) {
         return;
     }
-        const data = enemy[index];
-        let e = new Enemy(...data.slice(1));
-        ENEMIES.push(e);
-    }
+    const data = enemy[enemy_index];
+    let e = new Enemy(...data.slice(1));
+    ENEMIES.push(e);
 }
+
 
 function spawnStar() {
     let x, size;
@@ -422,9 +422,9 @@ function render() {
         CANVAS_CONTEXT.fillText(PLAYER.role, 0, 200);
         CANVAS_CONTEXT.fillText(STARS.length + ENEMIES.length + BULLETS.length, 0, 250);
         CANVAS_CONTEXT.font = "20px メイリオ";
-        CANVAS_CONTEXT.fillText("star  :"+STARS.length, 0, 300);
-        CANVAS_CONTEXT.fillText("enemy :"+ENEMIES.length, 0, 320);
-        CANVAS_CONTEXT.fillText("bullet:"+BULLETS.length, 0, 340);
+        CANVAS_CONTEXT.fillText("star  :" + STARS.length, 0, 300);
+        CANVAS_CONTEXT.fillText("enemy :" + ENEMIES.length, 0, 320);
+        CANVAS_CONTEXT.fillText("bullet:" + BULLETS.length, 0, 340);
         CANVAS_CONTEXT.fillStyle = "rgb(0, 0, 0)";
     }
 }
